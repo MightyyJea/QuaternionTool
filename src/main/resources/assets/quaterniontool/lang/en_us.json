@@ -1,0 +1,13 @@
+{
+  "itemGroup.quaterniontool": "Example Mod Tab",
+  "block.quaterniontool.example_block": "Example Block",
+  "item.quaterniontool.example_item": "Example Item",
+
+  "quaterniontool.configuration.title": "QuaternionTool Configs",
+  "quaterniontool.configuration.section.quaterniontool.common.toml": "QuaternionTool Configs",
+  "quaterniontool.configuration.section.quaterniontool.common.toml.title": "QuaternionTool Configs",
+  "quaterniontool.configuration.items": "Item List",
+  "quaterniontool.configuration.logDirtBlock": "Log Dirt Block",
+  "quaterniontool.configuration.magicNumberIntroduction": "Magic Number Text",
+  "quaterniontool.configuration.magicNumber": "Magic Number"
+}

@@ -1,5 +1,11 @@
 package com.jea;
 
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -31,6 +37,8 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.function.Supplier;
+
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(QuaternionTool.MODID)
 public class QuaternionTool {
@@ -49,6 +57,8 @@ public class QuaternionTool {
     public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", p -> p.mapColor(MapColor.STONE));
     // Creates a new BlockItem with the id "quaterniontool:example_block", combining the namespace and path
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
+    public static final DeferredRegister.Entities MY_ENTITY = DeferredRegister.createEntities(MODID);
+    public static final Supplier<EntityType<testEntity>> TESTENTITY = MY_ENTITY.register("testentity",()->EntityType.Builder.of(testEntity::new, MobCategory.MISC).fireImmune().noSave().build(ResourceKey.create(Registries.ENTITY_TYPE,fromMod("testentity"))));
 
     // Creates a new food item with the id "quaterniontool:example_id", nutrition 1 and saturation 2
     public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", p -> p.food(new FoodProperties.Builder()
@@ -68,13 +78,14 @@ public class QuaternionTool {
     public QuaternionTool(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
-
+        OIIASound.SOUND_EVENT.register(modEventBus);
         // Register the Deferred Register to the mod event bus so blocks get registered
         BLOCKS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so items get registered
         ITEMS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
+        MY_ENTITY.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (QuaternionTool) to respond directly to events.
@@ -83,9 +94,14 @@ public class QuaternionTool {
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
+        modEventBus.addListener(this::registerTestEntityRenderer);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+    }
+
+    public void registerTestEntityRenderer(EntityRenderersEvent.RegisterRenderers event){
+        event.registerEntityRenderer(TESTENTITY.get(), testEntityRenderer::new);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
@@ -107,7 +123,9 @@ public class QuaternionTool {
             event.accept(EXAMPLE_BLOCK_ITEM);
         }
     }
-
+    public static Identifier fromMod(String path){
+        return Identifier.fromNamespaceAndPath(MODID, path);
+    }
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {

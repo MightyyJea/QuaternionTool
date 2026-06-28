@@ -4,43 +4,27 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import org.jspecify.annotations.Nullable;
 
-public class VisualQuaternionRenderState implements PictureInPictureRenderState {
-    public VisualQuaternionRenderState(ScreenRectangle screenRectangle){
-        screensRectangle = screenRectangle;
-    }
-    ScreenRectangle screensRectangle;
-    @Override
-    public int x0() {
-        return 0;
-    }
 
-    @Override
-    public int x1() {
-        return 50;
-    }
+public record VisualQuaternionRenderState(
+        int x0, // The left X
+        int x1, // The right X
+        int y0, // The top Y
+        int y1, // The bottom Y
+        float scale, // The scale factor when drawing to the picture
+        @Nullable ScreenRectangle scissorArea, // The rendering area
+        @Nullable ScreenRectangle bounds // The bounds of the element
+) implements PictureInPictureRenderState {
 
-    @Override
-    public int y0() {
-        return 0;
-    }
-
-    @Override
-    public int y1() {
-        return 50;
-    }
-
-    @Override
-    public float scale() {
-        return 50f;
-    }
-
-    @Override
-    public @Nullable ScreenRectangle scissorArea() {
-        return screensRectangle;
-    }
-
-    @Override
-    public @Nullable ScreenRectangle bounds() {
-        return screensRectangle;
+    // Additional constructors
+    public VisualQuaternionRenderState(int x, int y, int width, int height, @Nullable ScreenRectangle scissorArea) {
+        this(
+                x, // x0
+                x + width, // x1
+                y, // y0
+                y + height, // y1
+                1f, // scale
+                scissorArea,
+                PictureInPictureRenderState.getBounds(x, y, x + width, y + height, scissorArea)
+        );
     }
 }

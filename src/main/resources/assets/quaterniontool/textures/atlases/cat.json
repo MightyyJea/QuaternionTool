@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "type": "quaterniontool:directory",
+      "prefix": "entity/cat/",
+      "source": "entity/cat"
+    }
+  ]
+}

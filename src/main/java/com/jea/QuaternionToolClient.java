@@ -43,6 +43,8 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
@@ -71,7 +73,17 @@ public class QuaternionToolClient {
         // Do not forget to add translations for your config options to the en_us.json file.
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
-
+    @SubscribeEvent
+    public static void gatherdata(GatherDataEvent.Client event){
+        event.createProvider(MySoundDefinitionProvider::new);
+    }
+    @SubscribeEvent
+    static void spawningCat(EntityJoinLevelEvent event){
+        if(event.getEntity().getType() == QuaternionTool.TESTENTITY.get()){
+            event.getEntity().playSound(OIIASound.OIIA.get(),4,1);
+            ((testEntity) event.getEntity()).resetCatSpinner();
+        }
+    }
     @SubscribeEvent
     static void registerRenderPipeline(RegisterRenderPipelinesEvent event){
         event.registerPipeline(CAT);

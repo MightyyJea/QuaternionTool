@@ -52,9 +52,15 @@ public class testEntityRenderer extends EntityRenderer<testEntity, testEntityRen
     @Override
     public void extractRenderState(testEntity entity, testEntityRenderState state, float partialTicks) {
         super.extractRenderState(entity, state, partialTicks);
-        entity.setYRot(entity.yRotO+AnglePerSecond*partialTicks);
-        state.angleProgression = entity.yRotO +AnglePerSecond*partialTicks;
-        state.jumpProgression = (float) Math.abs(Math.sin(state.angleProgression/2))*0.2f;
+        if(!Minecraft.getInstance().isPaused()){
+            entity.catSpinner.tick(partialTicks);
+            if(entity.catSpinner.isSpinning){
+                entity.setYRot(entity.yRotO+entity.catSpinner.currentSpinMoment.speed().radians*partialTicks);
+                state.angleProgression = entity.yRotO + entity.catSpinner.currentSpinMoment.speed().radians*partialTicks;
+                state.jumpProgression = (float) Math.abs(Math.sin(state.angleProgression/2))*0.2f;
+                state.isSpinning = entity.catSpinner.isSpinning;
+            }
+        }
     }
 
     @Override
@@ -63,13 +69,17 @@ public class testEntityRenderer extends EntityRenderer<testEntity, testEntityRen
         //OIIA OIIA
         poseStack.pushPose();
         poseStack.scale(1.8f,1.8f,1.8f);
-        float alpha = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
 
         poseStack.mulPose(Axis.YP.rotation(state.angleProgression));
         poseStack.translate(0,state.jumpProgression,0);
-        QuaternionTool.LOGGER.info("alpha : "+alpha + ", angle : "+state.angleProgression);
         submitNodeCollector.submitCustomGeometry(poseStack, CAT,    ((pose, vertexConsumer) -> {
-                    for (Face face : SpinningFaces) {
+                    ArrayList<Face> chooseFaces;
+                    if(state.isSpinning){
+                        chooseFaces = SpinningFaces;
+                    }else {
+                        chooseFaces = IdleFaces;
+                    }
+                    for (Face face : chooseFaces) {
                         for (int i = 0; i < face.vertices().length; i++) {
                             Vector3fc vertex = face.vertices()[i];
                             Vector3fc normal = face.normals()[i];

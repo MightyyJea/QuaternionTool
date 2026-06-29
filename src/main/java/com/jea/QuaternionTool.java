@@ -6,6 +6,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.sound.SoundEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -39,6 +40,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
+import static com.jea.OIIASound.init;
+
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(QuaternionTool.MODID)
 public class QuaternionTool {
@@ -50,6 +53,7 @@ public class QuaternionTool {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "quaterniontool" namespace
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
+
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "quaterniontool" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
@@ -64,6 +68,7 @@ public class QuaternionTool {
     public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", p -> p.food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
 
+    public static final DeferredItem<OIIAItem> OIIA_ITEM = ITEMS.registerItem("oiia_item",OIIAItem::new, properties -> properties);
     // Creates a creative tab with the id "quaterniontool:example_tab" for the example item, that is placed after the combat tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.quaterniontool")) //The language key for the title of your CreativeModeTab
@@ -78,6 +83,7 @@ public class QuaternionTool {
     public QuaternionTool(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
+        init();
         OIIASound.SOUND_EVENT.register(modEventBus);
         // Register the Deferred Register to the mod event bus so blocks get registered
         BLOCKS.register(modEventBus);
@@ -99,6 +105,7 @@ public class QuaternionTool {
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
+
 
     public void registerTestEntityRenderer(EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(TESTENTITY.get(), testEntityRenderer::new);
